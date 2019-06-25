@@ -3,21 +3,25 @@ from pygame.locals import *
 from random import randint
 
 
+
 class Apple:
     side = 20
 
     def __init__(self, snake_x, snake_y, width, height):
+
         checked = False
         while not checked:
             self.x = randint(0, (width - self.side) / self.side) * self.side
             self.y = randint(0, (height - self.side) / self.side) * self.side
-            if not ((self.x in snake_x) and (self.y in snake_y)):
+            if (self.x==0) | (self.y==0) | (self.x == (width - self.side)) | (self.y == (height-self.side)):
+                self.x = randint(0, (width - self.side) / self.side) * self.side
+                self.y = randint(0, (height - self.side) / self.side) * self.side
+            if (self.x, self.y) not in zip(snake_x, snake_y):
                 checked = True
 
     def draw(self, surface):
         pygame.draw.circle(surface, (0, 255, 0), (self.x + int(self.side / 2), self.y + int(self.side / 2)),
                            int(self.side / 2))
-
 
 class Game:
     def isCollision(self,x1,y1,x2,y2,bsize):
@@ -30,11 +34,11 @@ class Game:
 
 class Player:
     side = 20
-    direction = randint(0, 3)
-    updateCountMax = 2
+    updateCountMax = 1
     updateCount = 0
 
     def __init__(self, length: object, width: object, height: object) -> object:
+        self.direction = randint(0, 3)
         self.length = length
         self.x = [randint((self.side * length) / self.side, (width - self.side * length) / self.side) * self.side]
         self.y = [randint((self.side * length) / self.side, (height - self.side * length) / self.side) * self.side]
@@ -52,16 +56,11 @@ class Player:
                 self.x.append(self.x[0])
                 self.y.append(self.y[0] - i * self.side)
 
-    def check_bounds(self, width, height):
-        for i in range(self.length):
-            if self.x[i] < 0:
-                self.x[i] = self.x[i] + width
-            if self.x[i] >= width:
-                self.x[i] = self.x[i] - width
-            if self.y[i] < 0:
-                self.y[i] = self.y[i] + height
-            if self.y[i] >= height:
-                self.y[i] = self.y[i] - height
+    def check_out_of_bounds(self, width, height):
+
+        if (self.x[0] < 0) | (self.x[0] >= width) | (self.y[0] < 0) | (self.y[0] >= height):
+            return True
+        return False
 
 
     def update(self):
@@ -85,19 +84,19 @@ class Player:
             self.updateCount = 0
 
     def moveRight(self):
-        if self.direction!=1:
+        if self.y[0] != self.y[1]:
             self.direction = 0
 
     def moveLeft(self):
-        if self.direction != 0:
+        if self.y[0] != self.y[1]:
             self.direction = 1
 
     def moveUp(self):
-        if self.direction != 3:
+        if self.x[0] != self.x[1]:
             self.direction = 2
 
     def moveDown(self):
-        if self.direction != 2:
+        if self.x[0] != self.x[1]:
             self.direction = 3
 
     def grow(self):
@@ -139,7 +138,7 @@ class App:
         pygame.init()
         self.myfont = pygame.font.SysFont('Arial', 32)
         self._display_surf = pygame.display.set_mode((self.window_width, self.window_height))
-        pygame.display.set_caption('SNAKE')
+        pygame.display.set_caption('SNAKE - HIGHSCORE: '+str(HIGHSCORE))
         self._running = True
 
     def on_event(self, event):
@@ -161,8 +160,10 @@ class App:
                 self.dead = True
                 self.pause = True
 
-
-        self.player.check_bounds(self.window_width, self.window_height)
+        out = self.player.check_out_of_bounds(self.window_width, self.window_height)
+        if out:
+            self.dead = True
+            self.pause = True
 
     def on_render(self):
         self._display_surf.fill((0, 0, 0))
@@ -187,6 +188,7 @@ class App:
     def pause_press(self):
         if self.pause and self.dead:
             self.player.__init__(10, self.window_width, self.window_height)
+            self.apple.__init__(self.player.x, self.player.y, self.window_width, self.window_height)
             self.score = 0
             self.pause = False
             self.dead = False
@@ -200,7 +202,7 @@ class App:
             self._running = False
 
         while self._running:
-            pygame.time.delay(15)
+            pygame.time.delay(25)
             pygame.event.pump()
 
             for event in pygame.event.get():
@@ -217,19 +219,18 @@ class App:
 
             if not self.pause:
 
+
                 if (keys[K_RIGHT]):
                     self.player.moveRight()
 
-                if (keys[K_LEFT]):
+                elif (keys[K_LEFT]):
                     self.player.moveLeft()
 
-                if (keys[K_UP]):
+                elif (keys[K_UP]):
                     self.player.moveUp()
 
-                if (keys[K_DOWN]):
+                elif (keys[K_DOWN]):
                     self.player.moveDown()
-
-
 
                 self.on_loop()
                 self.on_render()
@@ -240,3 +241,16 @@ class App:
 if __name__ == "__main__":
     theApp = App()
     theApp.on_execute()
+
+
+
+    # def check_bounds(self, width, height):
+    #     for i in range(self.length):
+    #         if self.x[i] < 0:
+    #             self.x[i] = self.x[i] + width
+    #         if self.x[i] >= width:
+    #             self.x[i] = self.x[i] - width
+    #         if self.y[i] < 0:
+    #             self.y[i] = self.y[i] + height
+    #         if self.y[i] >= height:
+    #             self.y[i] = self.y[i] - height

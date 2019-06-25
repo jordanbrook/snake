@@ -4,7 +4,9 @@ Snake game made using pygame with help from this tutorial: https://pythonspot.co
 ## install
 Install snake
 `git clone https://github.com/jordanbrook/snake.git`
+
 `cd snake`
+
 `python setup.py install`
 
 ## play

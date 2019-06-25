@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import *
 from random import randint
-
+import os
 
 
 class Apple:
@@ -118,13 +118,14 @@ class Player:
 
 
 
-class App:
+class App():
     window_width = 500
     window_height = 400
     player = 1
 
 
-    def __init__(self):
+
+    def __init__(self, cwd):
         self._running = True
         self._display_surf = None
         self.pause = False
@@ -133,12 +134,17 @@ class App:
         self.game = Game()
         self.player = Player(10, self.window_width, self.window_height)
         self.apple = Apple(self.player.x, self.player.y, self.window_width, self.window_height)
+        self.cwd = cwd
+        with open(self.cwd + '/hs.txt') as f:
+            score = int(f.readlines()[0].split('/')[0])
+            self.orig_HS = score
+            self.HS = score
 
     def on_init(self):
         pygame.init()
         self.myfont = pygame.font.SysFont('Arial', 32)
         self._display_surf = pygame.display.set_mode((self.window_width, self.window_height))
-        pygame.display.set_caption('SNAKE - HIGHSCORE: '+str(HIGHSCORE))
+        pygame.display.set_caption('SNAKE - High Score: ' + str(self.HS))
         self._running = True
 
     def on_event(self, event):
@@ -165,6 +171,9 @@ class App:
             self.dead = True
             self.pause = True
 
+        if self.score > self.HS:
+            self.HS = self.score
+
     def on_render(self):
         self._display_surf.fill((0, 0, 0))
 
@@ -173,16 +182,20 @@ class App:
                                                                self.player.side, self.player.side))
         if self.dead:
             self._score_surface = self.myfont.render(str(self.score), True, (255, 0, 0), (0, 0, 0))
+        elif self.score >= self.HS:
+            self._score_surface = self.myfont.render(str(self.score), True, (0, 255, 0), (0, 0, 0))
         else:
             self._score_surface = self.myfont.render(str(self.score), True, (255, 255, 255), (0, 0, 0))
         self._display_surf.blit(self._score_surface, (self.window_width - 50, 20))
 
         self.apple.draw(self._display_surf)
-
-
+        pygame.display.set_caption('SNAKE - High Score: ' + str(self.HS))
         pygame.display.flip()
 
     def on_cleanup(self):
+        if self.HS > self.orig_HS:
+            outfile = open((self.cwd + '/hs.txt'), 'w')
+            outfile.write(str(self.HS))
         pygame.quit()
 
     def pause_press(self):
@@ -239,8 +252,10 @@ class App:
 
 
 if __name__ == "__main__":
-    theApp = App()
+    cwd = os.getcwd()
+    theApp = App(cwd)
     theApp.on_execute()
+
 
 
 

@@ -9,16 +9,14 @@ from shutil import rmtree
 from setuptools import find_packages, setup, Command
 
 # Package meta-data.
-NAME = 'AINT'
-DESCRIPTION = 'An adaption of the original TINT cell tracking software'
-URL = 'https://github.com/jordanbrook/AINT'
+NAME = 'snake'
+DESCRIPTION = 'A fun little snake game'
+URL = 'https://github.com/jordanbrook/snake'
 EMAIL = 'jordanpalmerbrook@gmail.com'
 AUTHOR = 'Jordan Brook'
 
 # What packages are required for this module to be executed?
-REQUIRED = [
-    "arm_pyart", "numpy", "scipy", "numba", "pandas", "ffmpeg",
-	"ipython", "scikit-fmm", "h5py", "cartopy"]
+REQUIRED = ["pygame"]
 
 # The rest you shouldn't have to touch too much :)
 # ------------------------------------------------
@@ -34,7 +32,7 @@ with io.open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
 
 # Load the package's __version__.py module as a dictionary.
 about = {}
-with open(os.path.join(here, 'aint', '__version__.py')) as f:
+with open(os.path.join(here, 'snake', '__version__.py')) as f:
     exec(f.read(), about)
 
 
